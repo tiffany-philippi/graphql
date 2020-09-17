@@ -6,17 +6,32 @@ import { createConnection } from 'typeorm';
 
 const app = express();
 
-const server = new ApolloServer({
+app.use(express.json());
+
+
+
+export const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  context: ({req, res}) => {
+    const token = req.headers["authorization"]?.split(" ")[1];
+    
+    if (token !== "YfasVBtUQ4gj82yzJ4Vn7rxWZ3NESPp4") return {};
+      
+    return {
+      user: token ? {name: 'Tiffany Philippi', username: 'tiffany'} : undefined,
+      token
+    }
+  }
 });
 
 server.applyMiddleware({ app });
 createConnection();
 
 app.get('/', (req, res) => {
-  res.send("Hello");
+  res.send("Por favor, use o endpoint /graphql");
 });
+
 app.listen(4000, () => {
   console.log(`Power GraphQL server is running`);
 })
